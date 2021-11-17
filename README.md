@@ -1,12 +1,1 @@
-{
-    "presets": [
-        [
-            "@babel/env",
-            {
-                "targets": {
-                    "node": "current"
-                }
-            }
-        ]
-    ]
-}
+脚手架demo
