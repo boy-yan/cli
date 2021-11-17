@@ -7,7 +7,7 @@ export const  actionMap = {
         alias: 'c',
         description: 'generate a new project from a template',
         usages: [
-            'eft init templateName projectName'
+            'eft create templateName'
         ]
     }
     //other commands
