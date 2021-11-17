@@ -1,19 +1,14 @@
+import { version } from '../package.json';
+
+//当前 package.json 的版本号
+export const VERSION = version;
 export const  actionMap = {
-    init: {
+    create: {
+        alias: 'c',
         description: 'generate a new project from a template',
         usages: [
             'eft init templateName projectName'
         ]
-    },
-    config: {
-        alias: 'cfg',
-        description: 'config .eftConfig',
-        usages: [
-            'eft config set <k> <v>',
-            'eft config get <k>',
-            'eft config remove <k>'
-        ]
-        
-    },
+    }
     //other commands
 }

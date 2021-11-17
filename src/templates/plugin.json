@@ -1,0 +1,5 @@
+{
+    "name": "eft-cli",
+    "author": "<%= author %>",
+    "description": "<%= description %>"
+}

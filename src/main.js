@@ -1,7 +1,6 @@
 import program from 'commander';
-import { VERSION } from './utils/constants';
-import apply from './index';
-import { actionMap } from './config'
+import { apply } from './utils/index';
+import { actionMap, VERSION } from './config'
 import chalk from 'chalk';
 
 // https://github.com/tj/commander.js/blob/HEAD/Readme_zh-CN.md#%E5%91%BD%E4%BB%A4
@@ -10,7 +9,7 @@ Object.keys(actionMap).forEach((action) => {
     .description(actionMap[action].description)
     .alias(actionMap[action].alias) //别名
     .action(() => {
-        apply(action, ...process.argv);
+        apply(action, ...process.argv.slice(3));
     });
 });
 
