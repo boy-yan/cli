@@ -1,9 +1,5 @@
 "use strict";
 
-require("core-js/modules/es.symbol.description.js");
-
-require("core-js/modules/web.dom-collections.iterator.js");
-
 var _commander = _interopRequireDefault(require("commander"));
 
 var _index = require("./utils/index");

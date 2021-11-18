@@ -1,8 +1,9 @@
 "use strict";
 
-require("core-js/modules/es.promise.js");
-
-require("core-js/modules/es.symbol.description.js");
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
 
 var _fs = _interopRequireDefault(require("fs"));
 
@@ -21,62 +22,82 @@ var _logSymbols = _interopRequireDefault(require("log-symbols"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // 默认模板位置
-const defaultTemplate = _path.default.join(__dirname, "../templates");
+const defaultTemplateDir = _path.default.join(__dirname, "../templates");
 
 const prompts = [{
   name: "description",
-  message: "Please enter the project description: "
+  message: "Please enter the plugin description: "
 }, {
   name: "author",
   message: "Please enter the author name: "
 }];
 
 async function create(pluginName) {
+  if (!pluginName) return console.log(_logSymbols.default.error, _chalk.default.red("The pluginName is required"));
   const destDir = process.cwd();
-  const answer = await _inquirer.default.prompt(prompts);
-  const loading = (0, _ora.default)("create template ...");
-  loading.color = 'green';
 
   const pluginDir = _path.default.join(destDir, pluginName);
 
   if (!_fs.default.existsSync(pluginDir)) {
-    loading.start();
+    const answer = await _inquirer.default.prompt(prompts);
+    const loading = (0, _ora.default)("create template ...");
+    loading.color = "green";
 
-    _fs.default.mkdirSync(pluginDir);
+    try {
+      loading.start();
 
-    await crateTemplate(pluginDir, answer);
-    loading.succeed('create success');
+      _fs.default.mkdirSync(pluginDir);
+
+      await init(pluginDir, answer);
+      loading.succeed("create success");
+    } catch (error) {
+      loading.fail('create fail');
+      console.log(_logSymbols.default.error, error);
+    }
   } else {
-    loading.fail();
-    console.log(_logSymbols.default.error, _chalk.default.red("The project already exists"));
+    console.log(_logSymbols.default.error, _chalk.default.red("The plugin already exists"));
   }
 }
 
-function crateTemplate(pluginDir, _ref) {
-  let {
-    author,
-    description
-  } = _ref;
+async function init(pluginDir, options) {
+  await cratePluginByTemplate(defaultTemplateDir, pluginDir);
 
-  _fs.default.readdir(defaultTemplate, (err, files) => {
-    if (err) throw err;
+  async function cratePluginByTemplate(templateDir, targetDir) {
+    const templateFiles = _fs.default.readdirSync(templateDir);
 
-    try {
-      files.forEach(item => {
+    for (const item of templateFiles) {
+      const templateItemPath = _path.default.join(templateDir, item);
+
+      const targetPath = _path.default.join(targetDir, item);
+
+      const isDirectory = await checkPathIsDirectory(templateItemPath);
+
+      if (isDirectory) {
+        // 目录
+        _fs.default.mkdirSync(targetPath);
+
+        await cratePluginByTemplate(templateItemPath, targetPath);
+      } else {
+        // 文件
         // 通过模板引擎去渲染文件
-        _ejs.default.renderFile(_path.default.join(defaultTemplate, item), {
-          author,
-          description
-        }, (err, res) => {
+        _ejs.default.renderFile(templateItemPath, options, (err, res) => {
           if (err) throw err; //  将结果写入目标文件路径
 
-          _fs.default.writeFileSync(_path.default.join(pluginDir, item), res);
+          _fs.default.writeFileSync(targetPath, res);
         });
-      });
-    } catch (err) {
-      throw err;
+      }
     }
+  }
+}
+
+function checkPathIsDirectory(path) {
+  return new Promise((resolve, reject) => {
+    _fs.default.stat(path, (err, stats) => {
+      if (err) reject(err);
+      resolve(stats.isDirectory());
+    });
   });
 }
 
-module.exports = create;
+var _default = create;
+exports.default = _default;
