@@ -6,7 +6,10 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import symbol from 'log-symbols';
 import { ICommand } from '../../command';
-
+interface ICreateParams {
+  description: string
+  author: string
+}
 // 默认模板位置
 const defaultTemplateDir = path.join(__dirname, './templates');
 
@@ -44,10 +47,10 @@ async function actionHandler(pluginName: string) {
   }
 }
 
-async function init(pluginDir, options) {
+async function init(pluginDir: string, options: ICreateParams) {
   await cratePluginByTemplate(defaultTemplateDir, pluginDir);
 
-  async function cratePluginByTemplate(templateDir, targetDir) {
+  async function cratePluginByTemplate(templateDir: string, targetDir: string) {
     const templateFiles = fs.readdirSync(templateDir);
     for (const item of templateFiles) {
       const templateItemPath = path.join(templateDir, item);
@@ -70,7 +73,7 @@ async function init(pluginDir, options) {
   }
 }
 
-function checkPathIsDirectory(path) {
+function checkPathIsDirectory(path: string) {
   return new Promise((resolve, reject) => {
     fs.stat(path, (err, stats) => {
       if (err) reject(err);
