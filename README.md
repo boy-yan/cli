@@ -6,7 +6,7 @@
 
 ### 启动
 
-`npm run watch`
+`npm run start`
 
 ### 执行 `npm link`
 
