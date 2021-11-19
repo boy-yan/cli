@@ -8,12 +8,14 @@
 `npm install`
 
 ### 启动
-
 `npm run start`
 
 ### 执行 `npm link`
+在本地开发npm模块的时候，我们可以使用npm link命令，将npm 模块链接到对应的运行项目中去，方便地对模块进行调试和测试
+[文档地址](https://docs.npmjs.com/cli/v8/commands/npm-link)
+
 
 此时就可以使用 `eft` 命令了。
 
-- `eft c my-template`
+- `eft create my-template`
 
