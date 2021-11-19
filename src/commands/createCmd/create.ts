@@ -6,12 +6,11 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import symbol from 'log-symbols';
 import { ICommand } from '../../command';
+import { checkPathIsDirectory } from '../../utils/index'
 interface ICreateParams {
   description: string
   author: string
 }
-// 默认模板位置
-const defaultTemplateDir = path.join(__dirname, './templates');
 
 const prompts = [
   {
@@ -23,6 +22,19 @@ const prompts = [
     message: 'Please enter the author name: ',
   },
 ];
+
+// 默认模板位置
+const defaultTemplateDir = path.join(__dirname, './templates');
+
+const createCommand: ICommand = {
+  name: 'create',
+  alias: 'c',
+  description: 'generate a new plugin from a template',
+  usages: ['eft create pluginName'],
+  actionHandler,
+};
+
+
 
 async function actionHandler(pluginName: string) {
   if (!pluginName)
@@ -48,13 +60,13 @@ async function actionHandler(pluginName: string) {
 }
 
 async function init(pluginDir: string, options: ICreateParams) {
+  // 递归复制模板文件
   await cratePluginByTemplate(defaultTemplateDir, pluginDir);
-
   async function cratePluginByTemplate(templateDir: string, targetDir: string) {
     const templateFiles = fs.readdirSync(templateDir);
     for (const item of templateFiles) {
-      const templateItemPath = path.join(templateDir, item);
-      const targetPath = path.join(targetDir, item);
+      const templateItemPath = path.join(templateDir, item); // 模板文件路径
+      const targetPath = path.join(targetDir, item); // 目标文件路径
       const isDirectory = await checkPathIsDirectory(templateItemPath);
       if (isDirectory) {
         // 目录
@@ -62,10 +74,8 @@ async function init(pluginDir: string, options: ICreateParams) {
         await cratePluginByTemplate(templateItemPath, targetPath);
       } else {
         // 文件
-        // 通过模板引擎去渲染文件
         ejs.renderFile(templateItemPath, options, (err, res) => {
           if (err) throw err;
-          //  将结果写入目标文件路径
           fs.writeFileSync(targetPath, res);
         });
       }
@@ -73,21 +83,6 @@ async function init(pluginDir: string, options: ICreateParams) {
   }
 }
 
-function checkPathIsDirectory(path: string) {
-  return new Promise((resolve, reject) => {
-    fs.stat(path, (err, stats) => {
-      if (err) reject(err);
-      resolve(stats.isDirectory());
-    });
-  });
-}
 
-const createCommand: ICommand = {
-  name: 'create',
-  alias: 'c',
-  description: 'generate a new project from a template',
-  usages: ['eft create templateName'],
-  actionHandler,
-};
 
 export default createCommand;

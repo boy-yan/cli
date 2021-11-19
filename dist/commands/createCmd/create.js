@@ -19,10 +19,9 @@ var _inquirer = _interopRequireDefault(require("inquirer"));
 
 var _logSymbols = _interopRequireDefault(require("log-symbols"));
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+var _index = require("../../utils/index");
 
-// 默认模板位置
-const defaultTemplateDir = _path.default.join(__dirname, './templates');
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const prompts = [{
   name: 'description',
@@ -30,7 +29,17 @@ const prompts = [{
 }, {
   name: 'author',
   message: 'Please enter the author name: '
-}];
+}]; // 默认模板位置
+
+const defaultTemplateDir = _path.default.join(__dirname, './templates');
+
+const createCommand = {
+  name: 'create',
+  alias: 'c',
+  description: 'generate a new plugin from a template',
+  usages: ['eft create pluginName'],
+  actionHandler
+};
 
 async function actionHandler(pluginName) {
   if (!pluginName) return console.log(_logSymbols.default.error, _chalk.default.red('The pluginName is required'));
@@ -60,17 +69,20 @@ async function actionHandler(pluginName) {
 }
 
 async function init(pluginDir, options) {
+  // 递归复制模板文件
   await cratePluginByTemplate(defaultTemplateDir, pluginDir);
 
   async function cratePluginByTemplate(templateDir, targetDir) {
     const templateFiles = _fs.default.readdirSync(templateDir);
 
     for (const item of templateFiles) {
-      const templateItemPath = _path.default.join(templateDir, item);
+      const templateItemPath = _path.default.join(templateDir, item); // 模板文件路径
 
-      const targetPath = _path.default.join(targetDir, item);
 
-      const isDirectory = await checkPathIsDirectory(templateItemPath);
+      const targetPath = _path.default.join(targetDir, item); // 目标文件路径
+
+
+      const isDirectory = await (0, _index.checkPathIsDirectory)(templateItemPath);
 
       if (isDirectory) {
         // 目录
@@ -79,9 +91,8 @@ async function init(pluginDir, options) {
         await cratePluginByTemplate(templateItemPath, targetPath);
       } else {
         // 文件
-        // 通过模板引擎去渲染文件
         _ejs.default.renderFile(templateItemPath, options, (err, res) => {
-          if (err) throw err; //  将结果写入目标文件路径
+          if (err) throw err;
 
           _fs.default.writeFileSync(targetPath, res);
         });
@@ -90,21 +101,5 @@ async function init(pluginDir, options) {
   }
 }
 
-function checkPathIsDirectory(path) {
-  return new Promise((resolve, reject) => {
-    _fs.default.stat(path, (err, stats) => {
-      if (err) reject(err);
-      resolve(stats.isDirectory());
-    });
-  });
-}
-
-const createCommand = {
-  name: 'create',
-  alias: 'c',
-  description: 'generate a new project from a template',
-  usages: ['eft create templateName'],
-  actionHandler
-};
 var _default = createCommand;
 exports.default = _default;
